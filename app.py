@@ -5,7 +5,7 @@ import time
 import datetime
 import threading
 import logging
-from config import SERVER_CONFIG, UPLOAD_CONFIG, CONVERT_CONFIG, API_CONFIG, MINIO_CONFIG, CLEANUP_CONFIG
+from config import SERVER_CONFIG, UPLOAD_CONFIG, CONVERT_CONFIG, API_CONFIG, CLEANUP_CONFIG
 
 app = Flask(__name__)
 
@@ -194,86 +194,26 @@ def upload_file():
                 'error': f'不支持的文件格式，仅支持: {", ".join(allowed_extensions)}'
             }), 400
         
-        # 根据配置选择存储方式
-        if MINIO_CONFIG['enabled']:
-            # 使用MinIO存储
-            try:
-                from minio import Minio
-                from minio.error import S3Error
-                import uuid
-                
-                # 初始化MinIO客户端
-                minio_client = Minio(
-                    MINIO_CONFIG['endpoint'],
-                    access_key=MINIO_CONFIG['access_key'],
-                    secret_key=MINIO_CONFIG['secret_key'],
-                    secure=MINIO_CONFIG['secure']
-                )
-                
-                # 生成唯一文件名
-                file_extension = os.path.splitext(file.filename)[1]
-                unique_filename = f"{uuid.uuid4()}{file_extension}"
-                
-                # 上传文件到MinIO
-                minio_client.put_object(
-                    MINIO_CONFIG['bucket_name'],
-                    unique_filename,
-                    file,
-                    length=-1,  # 让MinIO自动计算长度
-                    part_size=10 * 1024 * 1024,  # 10MB分片
-                    content_type=file.mimetype
-                )
-                
-                # 生成文件URL
-                if MINIO_CONFIG['secure']:
-                    file_url = f"https://{MINIO_CONFIG['endpoint']}/{MINIO_CONFIG['bucket_name']}/{unique_filename}"
-                else:
-                    file_url = f"http://{MINIO_CONFIG['endpoint']}/{MINIO_CONFIG['bucket_name']}/{unique_filename}"
-                
-                return jsonify({
-                    'success': True,
-                    'fileUrl': file_url,
-                    'filename': unique_filename,
-                    'storage_type': 'minio'
-                })
-                
-            except ImportError:
-                return jsonify({
-                    'success': False,
-                    'error': 'MinIO库未安装，请运行: pip install minio'
-                }), 500
-            except S3Error as e:
-                return jsonify({
-                    'success': False,
-                    'error': f'MinIO操作失败: {str(e)}'
-                }), 500
-            except Exception as e:
-                return jsonify({
-                    'success': False,
-                    'error': f'MinIO上传失败: {str(e)}'
-                }), 500
-        else:
-            # 使用本地文件存储
-            upload_dir = UPLOAD_CONFIG['upload_dir']
-            if not os.path.exists(upload_dir):
-                os.makedirs(upload_dir)
-            
-            # 生成安全的文件名
-            filename = file.filename
-            file_path = os.path.join(upload_dir, filename)
-            
-            # 保存文件
-            file.save(file_path)
-            
-            # 返回文件URL
-            file_url = f'http://localhost:5000/{upload_dir}/{filename}'
-            
-            return jsonify({
-                'success': True,
-                'fileUrl': file_url,
-                'filename': filename,
-                'storage_type': 'local'
-            })
+        upload_dir = UPLOAD_CONFIG['upload_dir']
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir)
+
+        # 生成安全的文件名
+        filename = file.filename
+        file_path = os.path.join(upload_dir, filename)
+
+        # 保存文件
+        file.save(file_path)
+
+        # 返回文件URL
+        file_url = f'http://localhost:5000/{upload_dir}/{filename}'
+
+        return jsonify({
+            'success': True,
+            'fileUrl': file_url,
+            'filename': filename,
+            'storage_type': 'local'
+        })
     
     except Exception as e:
         return jsonify({
@@ -302,7 +242,7 @@ def index():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Word文档分割工具</title>
-    <!-- 使用原生文件上传，不依赖外部MinIO库 -->
+    <!-- 使用原生文件上传 -->
     <style>
         body {
             font-family: Arial, sans-serif;

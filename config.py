@@ -23,16 +23,6 @@ CLEANUP_CONFIG = {
     'log_cleanup': True  # 是否记录清理日志
 }
 
-# MinIO配置（可选，如果需要使用MinIO存储）
-MINIO_CONFIG = {
-    'enabled': False,  # 是否启用MinIO存储
-    'endpoint': 'http://localhost:9000',  # MinIO服务地址
-    'access_key': 'your-access-key',  # 访问密钥
-    'secret_key': 'your-secret-key',  # 秘密密钥
-    'bucket_name': 'word-documents',  # 存储桶名称
-    'secure': False,  # 是否使用HTTPS
-    'region': 'us-east-1'  # 区域
-}
 
 # 转换配置
 CONVERT_CONFIG = {

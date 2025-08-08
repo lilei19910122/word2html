@@ -60,16 +60,6 @@ UPLOAD_CONFIG = {
     'allowed_extensions': ['.doc', '.docx']
 }
 
-# MinIO存储配置
-MINIO_CONFIG = {
-    'enabled': False,              # 是否启用MinIO存储
-    'endpoint': 'http://localhost:9000',  # MinIO服务地址
-    'access_key': 'your-access-key',      # 访问密钥
-    'secret_key': 'your-secret-key',      # 秘密密钥
-    'bucket_name': 'word-documents',     # 存储桶名称
-    'secure': False,             # 是否使用HTTPS
-    'region': 'us-east-1'       # 区域
-}
 
 # 转换配置
 CONVERT_CONFIG = {
@@ -88,20 +78,6 @@ CLEANUP_CONFIG = {
 }
 ```
 
-**说明**：
-- `enabled`: 设置为`True`启用MinIO存储，`False`使用本地文件存储
-- `endpoint`: MinIO服务的完整地址
-- `access_key`和`secret_key`: MinIO的认证凭据
-- `bucket_name`: 用于存储Word文档的存储桶名称
-- `secure`: 是否使用HTTPS协议连接MinIO
-- `region`: MinIO服务所在的区域
-
-**使用MinIO的步骤**：
-1. 确保MinIO服务正在运行
-2. 在MinIO中创建存储桶
-3. 设置`MINIO_CONFIG['enabled'] = True`
-4. 填写正确的MinIO连接信息
-5. 重启应用服务
 
 ## Web API使用
 
@@ -304,7 +280,6 @@ python simple_web_test.py
 - python-docx==0.8.11：用于读取Word文档
 - requests==2.28.1：用于从URL下载文件
 - flask==2.3.3：Web框架
-- minio==7.2.0：MinIO对象存储客户端（可选）
 - beautifulsoup4==4.12.2：用于HTML处理
 - lxml==4.9.3：python-docx的依赖项
 
@@ -313,11 +288,6 @@ python simple_web_test.py
 pip install -r requirements.txt
 ```
 
-**可选依赖**：
-如果需要使用MinIO存储功能，请确保安装minio库：
-```bash
-pip install minio==7.2.0
-```
 
 ## 调试信息
 
@@ -338,20 +308,12 @@ pip install minio==7.2.0
 - 上传文件大小限制为16MB
 - 仅支持.doc和.docx格式的Word文档
 
-### MinIO存储注意事项
-
-- 使用MinIO存储前，请确保MinIO服务正在运行
-- 需要在MinIO中创建对应的存储桶
-- 确保MinIO的访问密钥和秘密密钥配置正确
-- MinIO库为可选依赖，仅在启用MinIO存储时需要安装
-- 启用MinIO存储后，文件将存储在MinIO服务器而非本地
-- MinIO存储支持HTTP和HTTPS协议，可通过secure配置项控制
 
 ### 文件清理注意事项
 
 - 文件清理功能默认启用，会自动删除uploads目录中超过3天的文件
 - 清理任务每天凌晨2点自动执行，也可通过/cleanup接口手动触发
 - 清理日志会记录在应用日志中，包含删除的文件数量和释放的空间大小
-- 文件清理仅针对本地存储的文件，MinIO存储的文件不会被清理
+- 文件清理仅针对本地存储的文件
 - 修改CLEANUP_CONFIG配置后需要重启服务生效
 - 确保uploads目录有正确的读写权限，否则清理可能失败
