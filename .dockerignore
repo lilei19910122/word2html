@@ -1,0 +1,39 @@
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 测试文件
+test_*.py
+*_test.py
+
+# 临时文件
+*.tmp
+*.log
+
+# Docker文件
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 上传的文件
+uploads/*
+!uploads/.gitkeep
